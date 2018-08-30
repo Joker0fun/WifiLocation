@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (Ljava/util/ArrayList;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_chigoo_wifilocation_ChigooWifiLocation_Locate
-        (JNIEnv *, jobject, jobject,jobject);
+        (JNIEnv *, jobject, jobject obj,jobject accelerometer);
 
 #ifdef __cplusplus
 }

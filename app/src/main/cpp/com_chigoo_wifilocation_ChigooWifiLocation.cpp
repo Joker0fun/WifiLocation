@@ -43,7 +43,7 @@ char* jstringToChar(JNIEnv* env, jstring jstr) {
 }
 
 JNIEXPORT jstring JNICALL Java_com_chigoo_wifilocation_ChigooWifiLocation_Locate
-        (JNIEnv *env, jobject obj, jobject scanList,jobject  accelerometer)
+        (JNIEnv *env, jobject obj, jobject scanList,jobject  accelerometer)//
 {
     string out;
     string strUser = "test0001";
@@ -59,17 +59,30 @@ JNIEXPORT jstring JNICALL Java_com_chigoo_wifilocation_ChigooWifiLocation_Locate
     jint len = env->CallIntMethod(scanList, arraylist_size);
     LOGD("Get ArrayList<ChigooWifiInfo> size = %d!", len);
 
+    CVector3 getmoves;
     jclass  cls_cvector = env->GetObjectClass( accelerometer);
-    jmethodID ChigooCVector_getvx = env->GetMethodID(cls_cvector, "getVx", "()Ljava/lang/String;");
-    jmethodID ChigooCVector_getvy = env->GetMethodID(cls_cvector, "getVy", "()Ljava/lang/String;");
-    jmethodID ChigooCVector_getvz = env->GetMethodID(cls_cvector, "getVz", "()Ljava/lang/String;");
+    if (cls_cvector != NULL){
+        jmethodID ChigooCVector_getvx = env->GetMethodID(cls_cvector, "getVx", "()D");
+        if (ChigooCVector_getvx == NULL) {
+            LOGE("Get method getvx Fail !!!");
+        }
+        jmethodID ChigooCVector_getvy = env->GetMethodID(cls_cvector, "getVy", "()D");
+        if (ChigooCVector_getvx == NULL) {
+            LOGE("Get method getvy Fail !!!");
+        }
+        jmethodID ChigooCVector_getvz = env->GetMethodID(cls_cvector, "getVz", "()D");
+        if (ChigooCVector_getvx == NULL) {
+            LOGE("Get method getvz Fail !!!");
+        }
+        jdouble vx = env->CallDoubleMethod(accelerometer,ChigooCVector_getvx);
+        jdouble vy = env->CallDoubleMethod(accelerometer,ChigooCVector_getvy);
+        jdouble vz = env->CallDoubleMethod(accelerometer,ChigooCVector_getvz);
 
-    jdouble vx = env->CallDoubleMethod(cls_cvector,ChigooCVector_getvx);
-    jdouble vy = env->CallDoubleMethod(cls_cvector,ChigooCVector_getvy);
-    jdouble vz = env->CallDoubleMethod(cls_cvector,ChigooCVector_getvz);
-
-    CVector3* getmoves = new CVector3(vx,vy,vz);
-
+        getmoves = CVector3(vx,vy,vz);
+        LOGE("Get method getmv success:%lf%lf%lf !!!",getmoves.x,getmoves.y,getmoves.z);//
+    } else{
+        LOGE("Get method getmov Fail !!!");
+    }
 
     for (int i = 0; i < len; i++) {
         jobject obj_ChigooWifiInfo = env->CallObjectMethod(scanList, arraylist_get, i);
@@ -122,6 +135,5 @@ JNIEXPORT jstring JNICALL Java_com_chigoo_wifilocation_ChigooWifiLocation_Locate
     out = Ips.Locate(strUser, vecAPRssi, isMove, isSys, timestamp, K);
     const char* const_out = out.data();
     jstring str = env->NewStringUTF(const_out);
-    delete getmoves ;
     return str;
 }
